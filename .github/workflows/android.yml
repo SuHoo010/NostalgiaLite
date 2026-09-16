@@ -1,0 +1,53 @@
+name: Android CI
+
+on:
+  push:
+    branches: [ "master", "main" ]
+  pull_request:
+    branches: [ "master", "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: gradle
+
+    - name: Change script permissions
+      run: chmod +x gradlew
+
+    - name: Build NES App
+      run: ./gradlew :appnes:assembleDebug
+
+    - name: Build GBC App
+      run: ./gradlew :appgbc:assembleDebug
+
+    - name: Build GG App
+      run: ./gradlew :appgg:assembleDebug
+
+    - name: Upload NES APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: appnes-debug
+        path: appnes/build/outputs/apk/debug/*.apk
+
+    - name: Upload GBC APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: appgbc-debug
+        path: appgbc/build/outputs/apk/debug/*.apk
+
+    - name: Upload GG APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: appgg-debug
+        path: appgg/build/outputs/apk/debug/*.apk
